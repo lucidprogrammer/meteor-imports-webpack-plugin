@@ -1,5 +1,4 @@
 var path = require('path');
-
 function MeteorImportsPlugin(config) {
   config.exclude = [
     'autoupdate',
@@ -12,6 +11,8 @@ function MeteorImportsPlugin(config) {
 }
 
 MeteorImportsPlugin.prototype.apply = function(compiler) {
+  console.log('compiler')
+  console.log(compiler)
   var self = this;
 
   compiler.plugin("compile", function(params) {
@@ -80,6 +81,9 @@ MeteorImportsPlugin.prototype.apply = function(compiler) {
           test: new RegExp('.meteor/local/build/programs/web.browser/' + pckge.path),
           loader: 'exports?Package["' + packageName + '"]'
         })
+        var obj = {};
+        obj['meteor/'+packageName] =  'Package[\'' + packageName + '\']';
+        compiler.options.externals.push(obj);
       }
     });
 
