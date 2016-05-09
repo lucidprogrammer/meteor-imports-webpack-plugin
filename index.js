@@ -11,8 +11,6 @@ function MeteorImportsPlugin(config) {
 }
 
 MeteorImportsPlugin.prototype.apply = function(compiler) {
-  console.log('compiler')
-  console.log(compiler)
   var self = this;
 
   compiler.plugin("compile", function(params) {
@@ -46,13 +44,14 @@ MeteorImportsPlugin.prototype.apply = function(compiler) {
     // Add a loader to inject the meteor config in the meteor-imports require.
     compiler.options.module.loaders.push({
       test: /meteor-config/,
-      loader: 'json-string-loader?json=' + JSON.stringify(self.config)
+      loader: require.resolve('json-string-loader')+'?json=' + JSON.stringify(self.config)
     });
 
     // Add a loader to inject this as window in the meteor packages.
     compiler.options.module.loaders.push({
       test: new RegExp('.meteor/local/build/programs/web.browser/packages'),
-      loader: 'imports?this=>window'
+      loader: require.resolve("imports-loader")+'?this=>window'
+
     });
 
     // Add a resolveLoader to use the loaders from this plugin's own NPM
@@ -79,7 +78,7 @@ MeteorImportsPlugin.prototype.apply = function(compiler) {
           meteorBuild + '/' + pckge.path;
         compiler.options.module.loaders.push({
           test: new RegExp('.meteor/local/build/programs/web.browser/' + pckge.path),
-          loader: 'exports?Package["' + packageName + '"]'
+          loader: require.resolve("exports-loader")+'?Package["' + packageName + '"]'
         })
         var obj = {};
         obj['meteor/'+packageName] =  'Package[\'' + packageName + '\']';
